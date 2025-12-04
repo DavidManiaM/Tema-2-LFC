@@ -8,7 +8,7 @@ options {
 	language = CSharp;
 }
 
-program: statement* mainFunction (statement)* EOF;
+program: (varDeclaration SEMICOL)* mainFunction EOF;
 
 varType: INT_TYPE | DOUBLE_TYPE | FLOAT_TYPE | STRING_TYPE;
 numericType: INT_TYPE | DOUBLE_TYPE | FLOAT_TYPE;
@@ -74,13 +74,13 @@ varValue: arithmExpr | string;
 arithmExpr:
 	arithmExpr op = (MUL | DIV | MOD) arithmExpr	# MulDivExpr
 	| arithmExpr op = (PLUS | MINUS) arithmExpr		# AddSubExpr
-	| atom											# AtomExpr
-	| functionCall									# FunctionCallExpr;
+	| atom											# AtomExpr;
 
 atom:
 	number					# NumberAtom
 	| ID					# IdAtom
-	| '(' arithmExpr ')'	# ParenExpr;
+	| '(' arithmExpr ')'	# ParenExpr
+    | functionCall          # FuncCallAtom;
 
 arithmOperation: PLUS | MINUS | MUL | DIV | MOD;
 

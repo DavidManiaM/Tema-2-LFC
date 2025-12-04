@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include=".antlr\CompilerLexer.cs" />
+    <Compile Include=".antlr\CompilerParser.cs" />
+    <Compile Include="obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" />
+    <Compile Include="obj\Debug\net8.0\ANTLRTest.AssemblyInfo.cs" />
+    <Compile Include="obj\Debug\net8.0\ANTLRTest.GlobalUsings.g.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0\ANTLRTest.deps.json" />
+    <Content Include="bin\Debug\net8.0\ANTLRTest.runtimeconfig.json" />
+    <Content Include="obj\ANTLRTest.csproj.nuget.dgspec.json" />
+    <Content Include="obj\Debug\net8.0\ANTLRTest.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\project.assets.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".antlr\Compiler.interp" />
+    <None Include=".antlr\Compiler.tokens" />
+    <None Include=".antlr\CompilerLexer.interp" />
+    <None Include=".antlr\CompilerLexer.tokens" />
+    <None Include="bin\Debug\net8.0\Antlr4.Runtime.Standard.dll" />
+    <None Include="bin\Debug\net8.0\Antlr4BuildTasks.dll" />
+    <None Include="bin\Debug\net8.0\ANTLRTest.dll" />
+    <None Include="bin\Debug\net8.0\ANTLRTest.exe" />
+    <None Include="bin\Debug\net8.0\ANTLRTest.pdb" />
+    <None Include="bin\Debug\net8.0\Microsoft.Build.Framework.dll" />
+    <None Include="bin\Debug\net8.0\Microsoft.Build.Utilities.Core.dll" />
+    <None Include="bin\Debug\net8.0\Microsoft.NET.StringTools.dll" />
+    <None Include="bin\Debug\net8.0\Microsoft.VisualStudio.Setup.Configuration.Interop.dll" />
+    <None Include="bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\Microsoft.Win32.SystemEvents.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Diagnostics.EventLog.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Diagnostics.EventLog.Messages.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Drawing.Common.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Security.Cryptography.ProtectedData.dll" />
+    <None Include="bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Windows.Extensions.dll" />
+    <None Include="bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll" />
+    <None Include="bin\Debug\net8.0\System.Diagnostics.EventLog.dll" />
+    <None Include="bin\Debug\net8.0\System.Drawing.Common.dll" />
+    <None Include="bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll" />
+    <None Include="bin\Debug\net8.0\System.Security.Permissions.dll" />
+    <None Include="bin\Debug\net8.0\System.Windows.Extensions.dll" />
+    <None Include="obj\ANTLRTest.csproj.nuget.g.props" />
+    <None Include="obj\ANTLRTest.csproj.nuget.g.targets" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.AssemblyInfoInputs.cache" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.assets.cache" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.csproj.AssemblyReference.cache" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.csproj.BuildWithSkipAnalyzers" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.csproj.CoreCompileInputs.cache" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.csproj.Up2Date" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.dll" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.GeneratedMSBuildEditorConfig.editorconfig" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.genruntimeconfig.cache" />
+    <None Include="obj\Debug\net8.0\ANTLRTest.pdb" />
+    <None Include="obj\Debug\net8.0\apphost.exe" />
+    <None Include="obj\Debug\net8.0\input.vex" />
+    <None Include="obj\Debug\net8.0\refint\ANTLRTest.dll" />
+    <None Include="obj\Debug\net8.0\ref\ANTLRTest.dll" />
+    <None Include="obj\project.nuget.cache" />
+  </ItemGroup>
+
+  <!-- Add these references -->
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Antlr4BuildTasks" Version="12.8.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,23 +1,46 @@
-for (int i = 0; i <= 10 && a < 20; i++) {
-	a = a + i;
-}
-while (b != 0) {
-	b = b - 1;
-}
+int l = 5 + 7 * (3 - 1);
+int h = l % 3;
 
-int a = 3 + 2;
-int b = 10 - a;
-int m = 5, n = 8, k = 6;
-string c = "Hello World";
+int main() {
 
-if(a > b || a == b - 7) {
-	a += 2;
-	a++;
-} else {
-	b = b - 1;
+	for (int i = 0, a = 5; i <= 10 && a < 20; i++) {
+		a = a + i;
+		a += 9;
+	}
+	while (b != 0) {
+		b = b - 1;
+	}
+
+	while(true) {
+		b++;
+	}
+
+	/*
+
+	Variable declarations and assignments 
+	*/
+
+	int a = 3 + 2;
+	int b = 10 - a;
+	int m = 5, n = 8, k = 6;
+	string c = "Hello World";
+
+	// Complex conditional statements
+
+	if (a > b || a == b - 7) {
+		a += 2;
+		a++;
+	} else {
+		b = b - 1;
+	}
+
+	if (a < 5 && b >= 3 || c != "TEST") {
+		c = "Small a and big b";
+	}
+
+	return 3;
+	return "Hi";
+	return "";
+	string aibsu = "This is a test string with special characters: !@#$%^&*()_+";
+
 }
-
-if(a < 5 && b >= 3 || c != "TEST") {
-	c = "Small a and big b";
-}
-

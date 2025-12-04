@@ -36,18 +36,18 @@ namespace ANTLRTest
             var context = parser.program();
 
             // 7. Visit the parse tree with EvalVisitor
-            //var visitor = new EvalVisitor();
-            //visitor.Evaluate(context);
+            var visitor = new EvalVisitor();
+            visitor.Evaluate(context);
 
             Console.WriteLine("Parsing completed.");
             Console.WriteLine(context.ToStringTree(parser)); // Print the LISP-style tree
 
             // 8. Print evaluated variables
-            //Console.WriteLine("\nVariables:");
-            //foreach (var kvp in visitor.Variables)
-            //{
-            //    Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
-            //}
+            Console.WriteLine("\nVariables:");
+            foreach (var kvp in visitor.Variables)
+            {
+                Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
+            }
         }
     }
 }

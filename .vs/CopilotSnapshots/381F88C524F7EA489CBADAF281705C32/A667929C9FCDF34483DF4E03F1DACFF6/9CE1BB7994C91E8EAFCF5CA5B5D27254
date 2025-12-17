@@ -31,9 +31,6 @@ namespace ANTLRTest
     /// </summary>
     public class EvalVisitor : AbstractParseTreeVisitor<object?>, IParseTreeVisitor<object?>
     {
-        // Semantic errors collected during visiting
-        private readonly List<string> _semanticErrors = new();
-
 // Symbol table to store variable values
         private readonly Dictionary<string, Variable> _variables = new(StringComparer.Ordinal);
         // Function table to store user-defined functions
@@ -115,14 +112,6 @@ namespace ANTLRTest
          }
 
   var funcDef = new FunctionDefinition(funcName, returnType, parameters, context);
-
-            // Check for duplicate function signature
-            var signature = funcName + "(" + string.Join(",", parameters.Select(p => p.Type)) + ")";
-            if (_functions.ContainsKey(signature) || _functions.ContainsKey(funcName))
-            {
-                _semanticErrors.Add($"Duplicate function definition: {signature} at line {context.Start.Line}");
-            }
-
       _functions[funcName] = funcDef;
 
           return null;
@@ -179,7 +168,7 @@ namespace ANTLRTest
                 var varName = idNodes[i].GetText();
     object value;
 
-                // Check if there is an assignment for this variable
+         // Check if there is an assignment for this variable
     var idPosition = idNodes[i].Symbol.TokenIndex;
   var hasAssignment = assignContexts.Any(a => a.Symbol.TokenIndex > idPosition && (i == idNodes.Length - 1 || a.Symbol.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
 
@@ -206,22 +195,6 @@ namespace ANTLRTest
        {
           value = GetDefaultValue(varType);
      }
-
-    // Check duplicate local variable in same scope
-    if (_currentScope != "global")
-    {
-        var localKey = _currentScope + ":" + varName;
-        if (_variables.ContainsKey(localKey))
-        {
-            _semanticErrors.Add($"Duplicate local variable '{varName}' in function '{_currentScope}' at line {context.Start.Line}");
-        }
-        // Check conflict with parameters
-        var func = _functions.ContainsKey(_currentScope) ? _functions[_currentScope] : null;
-        if (func != null && func.Parameters.Any(p => p.Name == varName))
-        {
-            _semanticErrors.Add($"Local variable '{varName}' conflicts with parameter in function '{_currentScope}' at line {context.Start.Line}");
-        }
-    }
 
     _variables[varName] = new Variable(varType, value, _currentScope);
        lastValue = value;
@@ -490,8 +463,6 @@ return current % value;
                 return CallUserFunction(funcDef, args);
        }
 
-            // Unknown function
-            _semanticErrors.Add($"Unknown function called: {funcName} at line {context.Start.Line}");
             throw new InvalidOperationException($"Unknown function: {funcName}");
         }
 
@@ -700,8 +671,6 @@ if (arithmExprs != null && arithmExprs.Length == 1)
 _ => 0
       };
   }
-            // Variable not defined -> record semantic error
-            _semanticErrors.Add($"Undefined variable: {name}");
             throw new InvalidOperationException($"Undefined variable: {name}");
         }
 
@@ -710,7 +679,5 @@ _ => 0
         public void SetVariable(string name, Variable value) => _variables[name] = value;
    public IReadOnlyDictionary<string, Variable> Variables => _variables;
         public IReadOnlyDictionary<string, FunctionDefinition> Functions => _functions;
-
-        public List<string> SemanticErrors => _semanticErrors;
     }
 }

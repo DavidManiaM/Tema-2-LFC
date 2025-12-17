@@ -35,6 +35,12 @@ namespace ANTLRTest
 
             SaveGlobalVariablesToFile(visitor, "../../../global_variables.txt");
 
+            // Analyze and save function information
+            var functionAnalyzer = new FunctionAnalyzer();
+            var functions = functionAnalyzer.Analyze(context);
+            FunctionAnalyzer.WriteToFile(functions, "../../../functions.txt");
+            Console.WriteLine($"Function analysis saved to 'functions.txt'");
+
             Console.WriteLine("Parsing completed.");
             Console.WriteLine("\nParse Tree:");
             Console.WriteLine(PrettyPrintTree(context.ToStringTree(parser)));
@@ -44,6 +50,15 @@ namespace ANTLRTest
             foreach (var kvp in variables)
             {
                 Console.WriteLine($"  {kvp.Key} = {kvp.Value.Value} (Type: {kvp.Value.Type}, Scope: {kvp.Value.Scope})");
+            }
+
+            // Print function summary to console
+            Console.WriteLine("\nFunctions:");
+            foreach (var func in functions)
+            {
+                var funcType = func.IsRecursive ? "Recursive" : "Iterative";
+                var mainType = func.IsMain ? "Main" : "Non-Main";
+                Console.WriteLine($"  {func.Name}: {funcType}, {mainType}, Returns: {func.ReturnType}, Params: {func.Parameters.Count}, LocalVars: {func.LocalVariables.Count}, ControlStructures: {func.ControlStructures.Count}");
             }
         }
 

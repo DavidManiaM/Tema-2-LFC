@@ -30,7 +30,7 @@ namespace ANTLRTest
             // 4. Create the token stream
             var commonTokenStream = new CommonTokenStream(lexer);
 
-            // Extract and save the tokens
+            // This is where we'll extract and save the tokens
             SaveTokensToFile(commonTokenStream, "../../../tokens.txt");
 
             // Reset the stream to be used by the parser
@@ -47,6 +47,9 @@ namespace ANTLRTest
             var visitor = new EvalVisitor();
             visitor.Evaluate(context);
 
+            // Save global variables to a file
+            SaveGlobalVariablesToFile(visitor, "../../../global_variables.txt");
+
             Console.WriteLine("Parsing completed.");
             // Console.WriteLine(context.ToStringTree(parser)); // Print the LISP-style tree
 
@@ -58,8 +61,21 @@ namespace ANTLRTest
             Console.WriteLine("\nVariables:");
             foreach (var kvp in visitor.Variables)
             {
-                Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
+                Console.WriteLine($"  {kvp.Key} = {kvp.Value.Value} (Type: {kvp.Value.Type}, Scope: {kvp.Value.Scope})");
             }
+        }
+
+        /// <summary>
+        /// Writes all global variables, their types, and initial values to a file.
+        /// </summary>
+        private static void SaveGlobalVariablesToFile(EvalVisitor visitor, string outputPath)
+        {
+            var globalVars = visitor.Variables
+                .Where(kvp => kvp.Value.Scope == "global")
+                .Select(kvp => $"Variable: {kvp.Key}, Type: {kvp.Value.Type}, Initial Value: {kvp.Value.Value}");
+
+            File.WriteAllLines(outputPath, globalVars);
+            Console.WriteLine($"Global variables saved to '{outputPath}'");
         }
 
         /// <summary>
@@ -126,6 +142,25 @@ namespace ANTLRTest
             }
 
             return sb.ToString();
+        }
+    }
+
+    public class Variable
+    {
+        public string Type { get; }
+        public object Value { get; set; }
+        public string Scope { get; }
+
+        public Variable(string type, object value, string scope)
+        {
+            Type = type;
+            Value = value;
+            Scope = scope;
+        }
+
+        public override string ToString()
+        {
+            return $"Type: {Type}, Value: {Value}, Scope: {Scope}";
         }
     }
 }

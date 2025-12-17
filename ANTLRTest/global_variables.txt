@@ -1,0 +1,2 @@
+Variable: l, Type: int, Initial Value: 19
+Variable: h, Type: int, Initial Value: 1

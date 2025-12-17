@@ -2,6 +2,7 @@
 using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ANTLRTest
 {
@@ -12,7 +13,8 @@ namespace ANTLRTest
     public class EvalVisitor : AbstractParseTreeVisitor<object?>, IParseTreeVisitor<object?>
     {
         // Symbol table to store variable values
-        private readonly Dictionary<string, object> _variables = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, Variable> _variables = new(StringComparer.Ordinal);
+        private string _currentScope = "global";
 
         /// <summary>
         /// Entry point to evaluate a parsed program.
@@ -30,6 +32,7 @@ namespace ANTLRTest
             object? result = null;
 
             // Visit global variable declarations
+            _currentScope = "global";
             foreach (var varDecl in context.varDeclaration())
             {
                 VisitVarDeclaration(varDecl);
@@ -39,6 +42,7 @@ namespace ANTLRTest
             var mainFunc = context.mainFunction();
             if (mainFunc != null)
             {
+                _currentScope = "main";
                 foreach (var statement in mainFunc.statement())
                 {
                     result = VisitStatement(statement);
@@ -85,39 +89,64 @@ namespace ANTLRTest
         /// </summary>
         public object? VisitVarDeclaration(CompilerParser.VarDeclarationContext context)
         {
+            var varType = context.varType().GetText();
             var idNodes = context.ID();
-            var exprContexts = context.arithmExpr();
-            var stringContexts = context.@string();
+            var assignContexts = context.ASSIGN();
+            var arithmExprs = context.arithmExpr();
+            var stringExprs = context.@string();
 
             object? lastValue = null;
-            int exprIndex = 0;
-            int stringIndex = 0;
+            int valueIndex = 0;
 
             for (int i = 0; i < idNodes.Length; i++)
             {
                 var varName = idNodes[i].GetText();
                 object value;
 
-                // Determine if this variable has an arithmetic or string initializer
-                if (exprContexts != null && exprIndex < exprContexts.Length)
+                // Check if there is an assignment for this variable
+                var idPosition = idNodes[i].Symbol.TokenIndex;
+                var hasAssignment = assignContexts.Any(a => a.Symbol.TokenIndex > idPosition && (i == idNodes.Length - 1 || a.Symbol.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+
+                if (hasAssignment && valueIndex < (arithmExprs.Length + stringExprs.Length))
                 {
-                    value = EvaluateArithmExpr(exprContexts[exprIndex]);
-                    exprIndex++;
-                }
-                else if (stringContexts != null && stringIndex < stringContexts.Length)
-                {
-                    value = stringContexts[stringIndex].GetText().Trim('"');
-                    stringIndex++;
+                    var arithmExpr = arithmExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+                    var stringExpr = stringExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+
+                    if (arithmExpr != null)
+                    {
+                        value = EvaluateArithmExpr(arithmExpr);
+                    }
+                    else if (stringExpr != null)
+                    {
+                        value = stringExpr.GetText().Trim('"');
+                    }
+                    else
+                    {
+                        value = GetDefaultValue(varType);
+                    }
+                    valueIndex++;
                 }
                 else
                 {
-                    value = 0.0;
+                    value = GetDefaultValue(varType);
                 }
 
-                _variables[varName] = value;
+                _variables[varName] = new Variable(varType, value, _currentScope);
                 lastValue = value;
             }
             return lastValue;
+        }
+
+        private object GetDefaultValue(string varType)
+        {
+            return varType switch
+            {
+                "int" => 0,
+                "float" => 0.0f,
+                "double" => 0.0d,
+                "string" => "",
+                _ => null,
+            };
         }
 
         /// <summary>
@@ -131,7 +160,7 @@ namespace ANTLRTest
             if (context.INCR() != null)
             {
                 var current = GetVariableAsDouble(varName);
-                _variables[varName] = current + 1;
+                _variables[varName].Value = current + 1;
                 return current + 1;
             }
 
@@ -139,7 +168,7 @@ namespace ANTLRTest
             if (context.DECR() != null)
             {
                 var current = GetVariableAsDouble(varName);
-                _variables[varName] = current - 1;
+                _variables[varName].Value = current - 1;
                 return current - 1;
             }
 
@@ -151,7 +180,7 @@ namespace ANTLRTest
             {
                 var current = GetVariableAsDouble(varName);
                 var value = EvaluateVarValue(varValueContext);
-                _variables[varName] = current + value;
+                _variables[varName].Value = current + value;
                 return current + value;
             }
 
@@ -159,7 +188,7 @@ namespace ANTLRTest
             {
                 var current = GetVariableAsDouble(varName);
                 var value = EvaluateVarValue(varValueContext);
-                _variables[varName] = current - value;
+                _variables[varName].Value = current - value;
                 return current - value;
             }
 
@@ -167,7 +196,7 @@ namespace ANTLRTest
             {
                 var current = GetVariableAsDouble(varName);
                 var value = EvaluateVarValue(varValueContext);
-                _variables[varName] = current * value;
+                _variables[varName].Value = current * value;
                 return current * value;
             }
 
@@ -176,7 +205,7 @@ namespace ANTLRTest
                 var current = GetVariableAsDouble(varName);
                 var value = EvaluateVarValue(varValueContext);
                 if (value == 0) throw new DivideByZeroException();
-                _variables[varName] = current / value;
+                _variables[varName].Value = current / value;
                 return current / value;
             }
 
@@ -184,7 +213,7 @@ namespace ANTLRTest
             {
                 var current = GetVariableAsDouble(varName);
                 var value = EvaluateVarValue(varValueContext);
-                _variables[varName] = current % value;
+                _variables[varName].Value = current % value;
                 return current % value;
             }
 
@@ -194,13 +223,13 @@ namespace ANTLRTest
                 if (varValueContext.arithmExpr() != null)
                 {
                     var value = EvaluateArithmExpr(varValueContext.arithmExpr());
-                    _variables[varName] = value;
+                    _variables[varName].Value = value;
                     return value;
                 }
                 if (varValueContext.@string() != null)
                 {
                     var value = varValueContext.@string().GetText().Trim('"');
-                    _variables[varName] = value;
+                    _variables[varName].Value = value;
                     return value;
                 }
             }
@@ -499,12 +528,13 @@ namespace ANTLRTest
 
         private double GetVariableAsDouble(string name)
         {
-            if (_variables.TryGetValue(name, out var value))
+            if (_variables.TryGetValue(name, out var variable))
             {
-                return value switch
+                return variable.Value switch
                 {
                     double d => d,
                     int i => i,
+                    float f => f,
                     string s => double.TryParse(s, out var parsed) ? parsed : 0,
                     _ => 0
                 };
@@ -513,8 +543,8 @@ namespace ANTLRTest
         }
 
         // Public accessors
-        public bool TryGetVariable(string name, out object? value) => _variables.TryGetValue(name, out value);
-        public void SetVariable(string name, object value) => _variables[name] = value;
-        public IReadOnlyDictionary<string, object> Variables => _variables;
+        public bool TryGetVariable(string name, out Variable? value) => _variables.TryGetValue(name, out value);
+        public void SetVariable(string name, Variable value) => _variables[name] = value;
+        public IReadOnlyDictionary<string, Variable> Variables => _variables;
     }
 }

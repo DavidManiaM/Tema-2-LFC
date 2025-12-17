@@ -1,0 +1,25 @@
+using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
+using System.Collections.Generic;
+using System.IO;
+
+namespace ANTLRTest
+{
+    // Collects lexer and parser errors
+    public class ErrorReporter : IAntlrErrorListener<IToken>, IAntlrErrorListener<int>
+    {
+        public List<string> Errors { get; } = new();
+
+        // Parser/token-based errors
+        public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+        {
+            Errors.Add($"Syntax error at line {line}:{charPositionInLine} - {msg}");
+        }
+
+        // Lexer/int-based errors
+        public void SyntaxError(TextWriter output, IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+        {
+            Errors.Add($"Lexer error at line {line}:{charPositionInLine} - {msg}");
+        }
+    }
+}

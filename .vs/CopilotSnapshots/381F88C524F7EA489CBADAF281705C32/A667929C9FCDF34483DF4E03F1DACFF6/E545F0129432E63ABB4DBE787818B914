@@ -31,16 +31,11 @@ namespace ANTLRTest
     /// </summary>
     public class EvalVisitor : AbstractParseTreeVisitor<object?>, IParseTreeVisitor<object?>
     {
-        // Semantic errors collected during visiting
-        private readonly List<string> _semanticErrors = new();
-
 // Symbol table to store variable values
         private readonly Dictionary<string, Variable> _variables = new(StringComparer.Ordinal);
-        // Function table to store user-defined functions (support overloads)
-        private readonly Dictionary<string, List<FunctionDefinition>> _functions = new(StringComparer.Ordinal);
+        // Function table to store user-defined functions
+        private readonly Dictionary<string, FunctionDefinition> _functions = new(StringComparer.Ordinal);
     private string _currentScope = "global";
-    // Currently executing function definition (set during CallUserFunction)
-    private FunctionDefinition? _currentFunctionDef = null;
 
         /// <summary>
         /// Entry point to evaluate a parsed program.
@@ -63,8 +58,6 @@ namespace ANTLRTest
             {
           VisitGlobalDeclaration(globalDecl);
         }
-
-// Perform some post-declaration semantic checks if needed (none for now)
 
 // Visit statements inside main function
          var mainFunc = context.mainFunction();
@@ -119,22 +112,7 @@ namespace ANTLRTest
          }
 
   var funcDef = new FunctionDefinition(funcName, returnType, parameters, context);
-
-            // Check for duplicate function signature among overloads
-            if (!_functions.ContainsKey(funcName))
-            {
-                _functions[funcName] = new List<FunctionDefinition>();
-            }
-            else
-            {
-                var existing = _functions[funcName];
-                if (existing.Any(f => f.Parameters.Select(p => p.Type).SequenceEqual(parameters.Select(p => p.Type))))
-                {
-                    _semanticErrors.Add($"Duplicate function definition: {funcName}({string.Join(",", parameters.Select(p => p.Type))}) at line {context.Start.Line}");
-                }
-            }
-
-      _functions[funcName].Add(funcDef);
+      _functions[funcName] = funcDef;
 
           return null;
         }
@@ -190,7 +168,7 @@ namespace ANTLRTest
                 var varName = idNodes[i].GetText();
     object value;
 
-                // Check if there is an assignment for this variable
+         // Check if there is an assignment for this variable
     var idPosition = idNodes[i].Symbol.TokenIndex;
   var hasAssignment = assignContexts.Any(a => a.Symbol.TokenIndex > idPosition && (i == idNodes.Length - 1 || a.Symbol.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
 
@@ -217,45 +195,6 @@ namespace ANTLRTest
        {
           value = GetDefaultValue(varType);
      }
-
-    // Check duplicate global variable
-    if (_currentScope == "global")
-    {
-        if (_variables.TryGetValue(varName, out var existing) && existing.Scope == "global")
-        {
-            _semanticErrors.Add($"Duplicate global variable '{varName}' at line {context.Start.Line}");
-        }
-    }
-
-    // Check duplicate local variable in same scope
-    if (_currentScope != "global")
-    {
-        if (_variables.TryGetValue(varName, out var existingLocal) && existingLocal.Scope == _currentScope)
-        {
-            _semanticErrors.Add($"Duplicate local variable '{varName}' in function '{_currentScope}' at line {context.Start.Line}");
-        }
-        // Check conflict with parameters (use _currentFunctionDef when executing a function)
-        var func = _currentFunctionDef;
-        if (func != null && func.Parameters.Any(p => p.Name == varName))
-        {
-            _semanticErrors.Add($"Local variable '{varName}' conflicts with parameter in function '{_currentScope}' at line {context.Start.Line}");
-        }
-    }
-
-    // Type compatibility check for initialization
-    if (hasAssignment)
-    {
-        string exprType = "unknown";
-        var arithmExpr = arithmExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
-        var stringExpr = stringExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
-        if (stringExpr != null) exprType = "string";
-        else if (arithmExpr != null) exprType = InferArithmExprType(arithmExpr);
-
-        if (!AreTypesCompatible(varType, exprType))
-        {
-            _semanticErrors.Add($"Type mismatch initializing '{varName}' of type {varType} with {exprType} at line {context.Start.Line}");
-        }
-    }
 
     _variables[varName] = new Variable(varType, value, _currentScope);
        lastValue = value;
@@ -518,54 +457,12 @@ return current % value;
     return Math.Cos(EvaluateExpression(args[0]));
             }
 
-     // Check for user-defined functions (support overload resolution)
-   if (_functions.TryGetValue(funcName, out var overloads))
+     // Check for user-defined functions
+   if (_functions.TryGetValue(funcName, out var funcDef))
     {
-                // Try to match overload by argument count and types
-                var candidate = default(FunctionDefinition);
-                foreach (var f in overloads)
-                {
-                    if (f.Parameters.Count != args.Length) continue;
-                    bool ok = true;
-                    for (int i = 0; i < args.Length; i++)
-                    {
-                        var expected = f.Parameters[i].Type;
-                        var actual = "unknown";
-                        if (args[i].arithmExpr() != null) actual = InferArithmExprType(args[i].arithmExpr());
-                        else if (args[i].@string() != null) actual = "string";
-
-                        if (!AreTypesCompatible(expected, actual)) { ok = false; break; }
-                    }
-                    if (ok) { candidate = f; break; }
-                }
-
-                if (candidate != null)
-                {
-                    // Disallow calling main
-                    if (candidate.Name == "main")
-                    {
-                        _semanticErrors.Add($"Call to main is not allowed at line {context.Start.Line}");
-                        throw new InvalidOperationException("Call to main is not allowed");
-                    }
-
-                    // Detect recursion for non-main (allowed but we can note)
-                    if (_currentScope == candidate.Name && candidate.Name != "main")
-                    {
-                        // record but allow
-                        _semanticErrors.Add($"Recursive call to '{candidate.Name}' at line {context.Start.Line}");
-                    }
-
-                    return CallUserFunction(candidate, args);
-                }
-                else
-                {
-                    _semanticErrors.Add($"No matching function overload for call to '{funcName}' at line {context.Start.Line}");
-                    throw new InvalidOperationException($"No matching function overload for '{funcName}'");
-                }
+                return CallUserFunction(funcDef, args);
        }
 
-            // Unknown function
-            _semanticErrors.Add($"Unknown function called: {funcName} at line {context.Start.Line}");
             throw new InvalidOperationException($"Unknown function: {funcName}");
         }
 
@@ -577,7 +474,6 @@ return current % value;
     // Save current scope
         var previousScope = _currentScope;
             _currentScope = funcDef.Name;
-            _currentFunctionDef = funcDef;
 
   // Save current variable values that might be shadowed
             var savedVariables = new Dictionary<string, Variable>();
@@ -621,7 +517,6 @@ return current % value;
 
    // Restore scope
      _currentScope = previousScope;
-     _currentFunctionDef = null;
 
      return result;
         }
@@ -776,85 +671,13 @@ if (arithmExprs != null && arithmExprs.Length == 1)
 _ => 0
       };
   }
-            // Variable not defined -> record semantic error
-            _semanticErrors.Add($"Undefined variable: {name}");
             throw new InvalidOperationException($"Undefined variable: {name}");
-        }
-
-        // Type inference for arithmetic expressions
-        private string InferArithmExprType(CompilerParser.ArithmExprContext context)
-        {
-            if (context is CompilerParser.AddSubExprContext addSub)
-            {
-                var a = InferArithmExprType(addSub.arithmExpr(0));
-                var b = InferArithmExprType(addSub.arithmExpr(1));
-                return (a == "double" || b == "double") ? "double" : "int";
-            }
-            else if (context is CompilerParser.MulDivExprContext mulDiv)
-            {
-                var a = InferArithmExprType(mulDiv.arithmExpr(0));
-                var b = InferArithmExprType(mulDiv.arithmExpr(1));
-                return (a == "double" || b == "double") ? "double" : "int";
-            }
-            else if (context is CompilerParser.AtomExprContext atomExpr)
-            {
-                return InferAtomType(atomExpr.atom());
-            }
-
-            return "unknown";
-        }
-
-        private string InferAtomType(CompilerParser.AtomContext context)
-        {
-            if (context is CompilerParser.NumberAtomContext numCtx)
-            {
-                return numCtx.number().GetText().Contains('.') ? "double" : "int";
-            }
-
-            if (context is CompilerParser.IdAtomContext idCtx)
-            {
-                var name = idCtx.ID().GetText();
-                if (_variables.TryGetValue(name, out var v)) return v.Type;
-                _semanticErrors.Add($"Undefined variable used in expression: {name} at line {idCtx.Start.Line}");
-                return "unknown";
-            }
-
-            if (context is CompilerParser.ParenExprContext paren)
-            {
-                return InferArithmExprType(paren.arithmExpr());
-            }
-
-            if (context is CompilerParser.FuncCallAtomContext funcCtx)
-            {
-                var fname = funcCtx.functionCall().BUILTIN_FUNC()?.GetText() ?? funcCtx.functionCall().ID()?.GetText();
-                if (fname == null) return "unknown";
-                if (_functions.TryGetValue(fname, out var list))
-                {
-                    if (list.Count == 1) return list[0].ReturnType;
-                    return "unknown";
-                }
-                if (new[] { "sqrt", "log", "sin", "cos" }.Contains(fname)) return "double";
-                _semanticErrors.Add($"Unknown function in expression: {fname} at line {funcCtx.Start.Line}");
-                return "unknown";
-            }
-
-            return "unknown";
-        }
-
-        private bool AreTypesCompatible(string declared, string actual)
-        {
-            if (declared == actual) return true;
-            var numeric = new[] { "int", "float", "double" };
-            if (numeric.Contains(declared) && numeric.Contains(actual)) return true; // allow numeric conversions
-            return false;
         }
 
         // Public accessors
         public bool TryGetVariable(string name, out Variable? value) => _variables.TryGetValue(name, out value);
         public void SetVariable(string name, Variable value) => _variables[name] = value;
    public IReadOnlyDictionary<string, Variable> Variables => _variables;
-        public IReadOnlyDictionary<string, List<FunctionDefinition>> Functions => _functions;
-
-        public List<string> SemanticErrors => _semanticErrors;
+        public IReadOnlyDictionary<string, FunctionDefinition> Functions => _functions;
     }
 }

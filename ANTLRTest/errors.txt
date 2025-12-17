@@ -1,0 +1,3 @@
+Duplicate local variable 'a' in function 'main' at line 25
+Duplicate local variable 'b' in function 'main' at line 26
+Duplicate local variable 'i' in function 'main' at line 45

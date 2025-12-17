@@ -22,43 +22,16 @@ namespace ANTLRTest
             var fileContent = File.ReadAllText(filePath);
             var inputStream = new AntlrInputStream(fileContent);
             var lexer = new ANTLRTest.CompilerLexer(inputStream);
-
-            // Attach lexer error listener
-            var errorReporter = new ErrorReporter();
-            lexer.RemoveErrorListeners();
-            lexer.AddErrorListener((IAntlrErrorListener<int>)errorReporter);
-
             var commonTokenStream = new CommonTokenStream(lexer);
 
             SaveTokensToFile(commonTokenStream, "../../../tokens.txt");
             commonTokenStream.Seek(0);
 
             var parser = new CompilerParser(commonTokenStream);
-
-            // Attach parser error listener
-            parser.RemoveErrorListeners();
-            parser.AddErrorListener(errorReporter);
-
             var context = parser.program();
-
-            // Write any lexer/parser errors to file
-            if (errorReporter.Errors.Count > 0)
-            {
-                File.WriteAllLines("../../../errors.txt", errorReporter.Errors);
-                Console.WriteLine($"Errors detected. See '../../../errors.txt' for details.");
-            }
 
             var visitor = new EvalVisitor();
             visitor.Evaluate(context);
-
-            // Collect semantic errors from visitor and write to errors file in addition
-            var semanticErrors = visitor.SemanticErrors;
-            if (semanticErrors.Count > 0)
-            {
-                var allErrors = errorReporter.Errors.Concat(semanticErrors).ToList();
-                File.WriteAllLines("../../../errors.txt", allErrors);
-                Console.WriteLine($"Semantic errors detected. See '../../../errors.txt' for details.");
-            }
 
             SaveGlobalVariablesToFile(visitor, "../../../global_variables.txt");
 

@@ -7,303 +7,368 @@ using System.Linq;
 namespace ANTLRTest
 {
     /// <summary>
+    /// Represents a user-defined function with its parameters and body.
+    /// </summary>
+    public class FunctionDefinition
+    {
+        public string Name { get; set; }
+    public string ReturnType { get; set; }
+ public List<(string Type, string Name)> Parameters { get; set; }
+        public CompilerParser.FunctionDeclarationContext Context { get; set; }
+
+        public FunctionDefinition(string name, string returnType, List<(string, string)> parameters, CompilerParser.FunctionDeclarationContext context)
+  {
+    Name = name;
+  ReturnType = returnType;
+            Parameters = parameters;
+            Context = context;
+        }
+    }
+
+    /// <summary>
     /// Visitor that evaluates arithmetic expressions and variable assignments
     /// for the Compiler grammar.
     /// </summary>
     public class EvalVisitor : AbstractParseTreeVisitor<object?>, IParseTreeVisitor<object?>
     {
-        // Symbol table to store variable values
+// Symbol table to store variable values
         private readonly Dictionary<string, Variable> _variables = new(StringComparer.Ordinal);
-        private string _currentScope = "global";
+        // Function table to store user-defined functions
+        private readonly Dictionary<string, FunctionDefinition> _functions = new(StringComparer.Ordinal);
+    private string _currentScope = "global";
 
         /// <summary>
         /// Entry point to evaluate a parsed program.
         /// </summary>
         public object? Evaluate(CompilerParser.ProgramContext context)
         {
-            return VisitProgram(context);
+       return VisitProgram(context);
         }
 
         /// <summary>
-        /// Visit the root program rule: (varDeclaration SEMICOL)* mainFunction EOF
+        /// Visit the root program rule: (globalDeclaration)* mainFunction EOF
         /// </summary>
         public object? VisitProgram(CompilerParser.ProgramContext context)
         {
             object? result = null;
 
-            // Visit global variable declarations
-            _currentScope = "global";
-            foreach (var varDecl in context.varDeclaration())
+    // Visit global declarations (variables and functions)
+       _currentScope = "global";
+          foreach (var globalDecl in context.globalDeclaration())
             {
-                VisitVarDeclaration(varDecl);
-            }
+          VisitGlobalDeclaration(globalDecl);
+        }
 
-            // Visit statements inside main function
-            var mainFunc = context.mainFunction();
-            if (mainFunc != null)
+// Visit statements inside main function
+         var mainFunc = context.mainFunction();
+   if (mainFunc != null)
             {
-                _currentScope = "main";
-                foreach (var statement in mainFunc.statement())
-                {
-                    result = VisitStatement(statement);
-                }
-            }
+    _currentScope = "main";
+      foreach (var statement in mainFunc.statement())
+       {
+           result = VisitStatement(statement);
+    }
+     }
 
-            return result;
+       return result;
         }
 
         /// <summary>
+        /// Visit a global declaration (variable or function).
+        /// </summary>
+        public object? VisitGlobalDeclaration(CompilerParser.GlobalDeclarationContext context)
+    {
+            if (context.varDeclaration() != null)
+     {
+     return VisitVarDeclaration(context.varDeclaration());
+ }
+
+        if (context.functionDeclaration() != null)
+     {
+                return VisitFunctionDeclaration(context.functionDeclaration());
+        }
+
+         return null;
+   }
+
+        /// <summary>
+        /// Visit a function declaration and register it.
+        /// </summary>
+        public object? VisitFunctionDeclaration(CompilerParser.FunctionDeclarationContext context)
+        {
+    var returnType = context.varType().GetText();
+   var funcName = context.ID().GetText();
+
+     var parameters = new List<(string Type, string Name)>();
+      var paramList = context.parameterList();
+        if (paramList != null)
+         {
+       foreach (var param in paramList.parameter())
+     {
+       var paramType = param.varType().GetText();
+          var paramName = param.ID().GetText();
+        parameters.Add((paramType, paramName));
+       }
+         }
+
+  var funcDef = new FunctionDefinition(funcName, returnType, parameters, context);
+      _functions[funcName] = funcDef;
+
+          return null;
+        }
+
+ /// <summary>
         /// Visit a statement.
         /// </summary>
-        public object? VisitStatement(CompilerParser.StatementContext context)
-        {
+      public object? VisitStatement(CompilerParser.StatementContext context)
+      {
             if (context.varDeclaration() != null)
-                return VisitVarDeclaration(context.varDeclaration());
+          return VisitVarDeclaration(context.varDeclaration());
 
             if (context.varAssignment() != null)
-                return VisitVarAssignment(context.varAssignment());
+   return VisitVarAssignment(context.varAssignment());
 
-            if (context.arithmExpr() != null)
-                return EvaluateArithmExpr(context.arithmExpr());
+      if (context.arithmExpr() != null)
+    return EvaluateArithmExpr(context.arithmExpr());
 
             if (context.ifStatement() != null)
-                return VisitIfStatement(context.ifStatement());
+      return VisitIfStatement(context.ifStatement());
 
             if (context.forStatement() != null)
-                return VisitForStatement(context.forStatement());
+             return VisitForStatement(context.forStatement());
 
             if (context.whileStatement() != null)
-                return VisitWhileStatement(context.whileStatement());
+     return VisitWhileStatement(context.whileStatement());
 
             if (context.returnStatement() != null)
-                return VisitReturnStatement(context.returnStatement());
+        return VisitReturnStatement(context.returnStatement());
 
-            if (context.functionCall() != null)
-                return VisitFunctionCall(context.functionCall());
+         if (context.functionCall() != null)
+     return VisitFunctionCall(context.functionCall());
 
             return null;
         }
 
         /// <summary>
-        /// Visit a variable declaration (e.g., "int a = 5;").
-        /// </summary>
-        public object? VisitVarDeclaration(CompilerParser.VarDeclarationContext context)
+/// Visit a variable declaration (e.g., "int a = 5;").
+  /// </summary>
+     public object? VisitVarDeclaration(CompilerParser.VarDeclarationContext context)
         {
-            var varType = context.varType().GetText();
-            var idNodes = context.ID();
+ var varType = context.varType().GetText();
+    var idNodes = context.ID();
             var assignContexts = context.ASSIGN();
-            var arithmExprs = context.arithmExpr();
+  var arithmExprs = context.arithmExpr();
             var stringExprs = context.@string();
 
-            object? lastValue = null;
-            int valueIndex = 0;
+         object? lastValue = null;
+   int valueIndex = 0;
 
-            for (int i = 0; i < idNodes.Length; i++)
-            {
+   for (int i = 0; i < idNodes.Length; i++)
+        {
                 var varName = idNodes[i].GetText();
-                object value;
+    object value;
 
-                // Check if there is an assignment for this variable
-                var idPosition = idNodes[i].Symbol.TokenIndex;
-                var hasAssignment = assignContexts.Any(a => a.Symbol.TokenIndex > idPosition && (i == idNodes.Length - 1 || a.Symbol.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+         // Check if there is an assignment for this variable
+    var idPosition = idNodes[i].Symbol.TokenIndex;
+  var hasAssignment = assignContexts.Any(a => a.Symbol.TokenIndex > idPosition && (i == idNodes.Length - 1 || a.Symbol.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
 
                 if (hasAssignment && valueIndex < (arithmExprs.Length + stringExprs.Length))
-                {
-                    var arithmExpr = arithmExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
-                    var stringExpr = stringExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+            {
+            var arithmExpr = arithmExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
+  var stringExpr = stringExprs.FirstOrDefault(e => e.Start.TokenIndex > idPosition && (i == idNodes.Length - 1 || e.Start.TokenIndex < idNodes[i + 1].Symbol.TokenIndex));
 
-                    if (arithmExpr != null)
-                    {
-                        value = EvaluateArithmExpr(arithmExpr);
-                    }
-                    else if (stringExpr != null)
-                    {
-                        value = stringExpr.GetText().Trim('"');
-                    }
-                    else
-                    {
-                        value = GetDefaultValue(varType);
-                    }
-                    valueIndex++;
+     if (arithmExpr != null)
+        {
+       value = EvaluateArithmExpr(arithmExpr);
+     }
+     else if (stringExpr != null)
+     {
+      value = stringExpr.GetText().Trim('"');
+      }
+               else
+  {
+         value = GetDefaultValue(varType);
+         }
+           valueIndex++;
                 }
                 else
-                {
-                    value = GetDefaultValue(varType);
-                }
+       {
+          value = GetDefaultValue(varType);
+     }
 
-                _variables[varName] = new Variable(varType, value, _currentScope);
-                lastValue = value;
+    _variables[varName] = new Variable(varType, value, _currentScope);
+       lastValue = value;
             }
-            return lastValue;
-        }
+      return lastValue;
+   }
 
-        private object GetDefaultValue(string varType)
-        {
+    private object GetDefaultValue(string varType)
+     {
             return varType switch
-            {
-                "int" => 0,
-                "float" => 0.0f,
-                "double" => 0.0d,
-                "string" => "",
-                _ => null,
-            };
+    {
+ "int" => 0,
+      "float" => 0.0f,
+    "double" => 0.0d,
+     "string" => "",
+      _ => null,
+     };
         }
 
-        /// <summary>
+  /// <summary>
         /// Visit a variable assignment with compound operators support.
-        /// </summary>
+      /// </summary>
         public object? VisitVarAssignment(CompilerParser.VarAssignmentContext context)
-        {
-            var varName = context.ID().GetText();
+ {
+ var varName = context.ID().GetText();
 
             // Handle increment: a++
-            if (context.INCR() != null)
-            {
-                var current = GetVariableAsDouble(varName);
-                _variables[varName].Value = current + 1;
-                return current + 1;
+         if (context.INCR() != null)
+    {
+         var current = GetVariableAsDouble(varName);
+  _variables[varName].Value = current + 1;
+        return current + 1;
             }
 
-            // Handle decrement: a--
-            if (context.DECR() != null)
-            {
-                var current = GetVariableAsDouble(varName);
-                _variables[varName].Value = current - 1;
-                return current - 1;
+         // Handle decrement: a--
+     if (context.DECR() != null)
+  {
+      var current = GetVariableAsDouble(varName);
+            _variables[varName].Value = current - 1;
+     return current - 1;
             }
 
             var varValueContext = context.varValue();
-            if (varValueContext == null) return null;
+      if (varValueContext == null) return null;
 
-            // Handle compound assignments: +=, -=, *=, /=, %=
-            if (context.PLUS_EQ() != null)
-            {
-                var current = GetVariableAsDouble(varName);
-                var value = EvaluateVarValue(varValueContext);
-                _variables[varName].Value = current + value;
-                return current + value;
-            }
+ // Handle compound assignments: +=, -=, *=, /=, %=
+if (context.PLUS_EQ() != null)
+ {
+    var current = GetVariableAsDouble(varName);
+    var value = EvaluateVarValue(varValueContext);
+           _variables[varName].Value = current + value;
+        return current + value;
+    }
 
-            if (context.MINUS_EQ() != null)
+      if (context.MINUS_EQ() != null)
             {
-                var current = GetVariableAsDouble(varName);
-                var value = EvaluateVarValue(varValueContext);
-                _variables[varName].Value = current - value;
-                return current - value;
+       var current = GetVariableAsDouble(varName);
+     var value = EvaluateVarValue(varValueContext);
+           _variables[varName].Value = current - value;
+     return _variables[varName].Value;
             }
 
             if (context.MUL_EQ() != null)
             {
-                var current = GetVariableAsDouble(varName);
-                var value = EvaluateVarValue(varValueContext);
-                _variables[varName].Value = current * value;
-                return current * value;
-            }
+         var current = GetVariableAsDouble(varName);
+    var value = EvaluateVarValue(varValueContext);
+        _variables[varName].Value = current * value;
+        return current * value;
+ }
 
             if (context.DIV_EQ() != null)
-            {
-                var current = GetVariableAsDouble(varName);
-                var value = EvaluateVarValue(varValueContext);
-                if (value == 0) throw new DivideByZeroException();
-                _variables[varName].Value = current / value;
-                return current / value;
-            }
+ {
+         var current = GetVariableAsDouble(varName);
+    var value = EvaluateVarValue(varValueContext);
+    if (value == 0) throw new DivideByZeroException();
+          _variables[varName].Value = current / value;
+       return current / value;
+   }
 
-            if (context.MOD_EQ() != null)
+     if (context.MOD_EQ() != null)
             {
-                var current = GetVariableAsDouble(varName);
-                var value = EvaluateVarValue(varValueContext);
-                _variables[varName].Value = current % value;
-                return current % value;
-            }
+var current = GetVariableAsDouble(varName);
+       var value = EvaluateVarValue(varValueContext);
+     _variables[varName].Value = current % value;
+return current % value;
+}
 
             // Handle simple assignment: a = value
-            if (context.ASSIGN() != null)
-            {
-                if (varValueContext.arithmExpr() != null)
-                {
-                    var value = EvaluateArithmExpr(varValueContext.arithmExpr());
-                    _variables[varName].Value = value;
-                    return value;
-                }
-                if (varValueContext.@string() != null)
-                {
-                    var value = varValueContext.@string().GetText().Trim('"');
-                    _variables[varName].Value = value;
-                    return value;
-                }
+     if (context.ASSIGN() != null)
+   {
+         if (varValueContext.arithmExpr() != null)
+      {
+            var value = EvaluateArithmExpr(varValueContext.arithmExpr());
+         _variables[varName].Value = value;
+               return value;
+    }
+       if (varValueContext.@string() != null)
+        {
+ var value = varValueContext.@string().GetText().Trim('"');
+        _variables[varName].Value = value;
+      return value;
+    }
             }
 
-            return null;
-        }
+     return null;
+  }
 
-        private double EvaluateVarValue(CompilerParser.VarValueContext context)
+   private double EvaluateVarValue(CompilerParser.VarValueContext context)
         {
-            if (context.arithmExpr() != null)
-                return EvaluateArithmExpr(context.arithmExpr());
+      if (context.arithmExpr() != null)
+        return EvaluateArithmExpr(context.arithmExpr());
             return 0;
-        }
+     }
 
         /// <summary>
         /// Visit if statement.
-        /// </summary>
+      /// </summary>
         public object? VisitIfStatement(CompilerParser.IfStatementContext context)
-        {
+ {
             var condition = EvaluateLogicalExpr(context.logicalExpr());
             var statements = context.statement();
             var lbraces = context.LBRACE();
-            var rbraces = context.RBRACE();
+ var rbraces = context.RBRACE();
 
-            object? result = null;
+  object? result = null;
 
-            if (context.ELSE_TOKEN() != null)
-            {
-                // There's an else block - need to split statements between if and else
-                // Find the index where the else block starts by comparing statement positions
-                // The first RBRACE marks the end of the if-block
-                int firstRbraceIndex = rbraces[0].Symbol.StopIndex;
+        if (context.ELSE_TOKEN() != null)
+       {
+       // There's an else block - need to split statements between if and else
+        // Find the index where the else block starts by comparing statement positions
+  // The first RBRACE marks the end of the if-block
+        int firstRbraceIndex = rbraces[0].Symbol.StopIndex;
 
-                var ifStatements = new List<CompilerParser.StatementContext>();
-                var elseStatements = new List<CompilerParser.StatementContext>();
+       var ifStatements = new List<CompilerParser.StatementContext>();
+         var elseStatements = new List<CompilerParser.StatementContext>();
 
                 foreach (var stmt in statements)
-                {
-                    // Statements before the first RBRACE belong to the if-block
-                    if (stmt.Start.StartIndex < firstRbraceIndex)
-                    {
-                        ifStatements.Add(stmt);
-                    }
-                    else
-                    {
-                        elseStatements.Add(stmt);
-                    }
-                }
+      {
+        // Statements before the first RBRACE belong to the if-block
+ if (stmt.Start.StartIndex < firstRbraceIndex)
+           {
+            ifStatements.Add(stmt);
+             }
+        else
+     {
+       elseStatements.Add(stmt);
+                 }
+       }
 
-                if (condition)
-                {
-                    foreach (var stmt in ifStatements)
-                    {
-                        result = VisitStatement(stmt);
-                    }
-                }
-                else
-                {
-                    foreach (var stmt in elseStatements)
-                    {
-                        result = VisitStatement(stmt);
-                    }
-                }
-            }
+ if (condition)
+    {
+   foreach (var stmt in ifStatements)
+  {
+            result = VisitStatement(stmt);
+      }
+    }
+          else
+ {
+      foreach (var stmt in elseStatements)
+      {
+           result = VisitStatement(stmt);
+    }
+       }
+  }
             else
             {
-                // No else block - execute all statements if condition is true
-                if (condition)
-                {
-                    foreach (var stmt in statements)
-                    {
-                        result = VisitStatement(stmt);
-                    }
-                }
+         // No else block - execute all statements if condition is true
+ if (condition)
+        {
+ foreach (var stmt in statements)
+           {
+    result = VisitStatement(stmt);
+     }
+    }
             }
 
             return result;
@@ -311,28 +376,28 @@ namespace ANTLRTest
 
         /// <summary>
         /// Visit for statement.
-        /// </summary>
-        public object? VisitForStatement(CompilerParser.ForStatementContext context)
-        {
-            // Initialize
-            if (context.varDeclaration() != null)
+  /// </summary>
+ public object? VisitForStatement(CompilerParser.ForStatementContext context)
+    {
+     // Initialize
+   if (context.varDeclaration() != null)
                 VisitVarDeclaration(context.varDeclaration());
 
-            object? result = null;
+          object? result = null;
 
-            // Loop while condition is true (or forever if no condition)
-            while (context.logicalExpr() == null || EvaluateLogicalExpr(context.logicalExpr()))
-            {
-                // Execute body
-                foreach (var stmt in context.statement())
-                {
-                    result = VisitStatement(stmt);
+// Loop while condition is true (or forever if no condition)
+ while (context.logicalExpr() == null || EvaluateLogicalExpr(context.logicalExpr()))
+       {
+       // Execute body
+           foreach (var stmt in context.statement())
+       {
+  result = VisitStatement(stmt);
                 }
 
-                // Update
-                if (context.varAssignment() != null)
-                    VisitVarAssignment(context.varAssignment());
-            }
+         // Update
+     if (context.varAssignment() != null)
+  VisitVarAssignment(context.varAssignment());
+      }
 
             return result;
         }
@@ -341,210 +406,278 @@ namespace ANTLRTest
         /// Visit while statement.
         /// </summary>
         public object? VisitWhileStatement(CompilerParser.WhileStatementContext context)
-        {
+  {
             object? result = null;
 
-            while (context.logicalExpr() == null || EvaluateLogicalExpr(context.logicalExpr()))
-            {
+  while (context.logicalExpr() == null || EvaluateLogicalExpr(context.logicalExpr()))
+  {
                 foreach (var stmt in context.statement())
-                {
-                    result = VisitStatement(stmt);
+      {
+        result = VisitStatement(stmt);
                 }
             }
 
-            return result;
-        }
+         return result;
+    }
 
         /// <summary>
-        /// Visit return statement.
+     /// Visit return statement.
         /// </summary>
         public object? VisitReturnStatement(CompilerParser.ReturnStatementContext context)
         {
-            if (context.expression() != null)
+      if (context.expression() != null)
             {
-                var expr = context.expression();
-                if (expr.arithmExpr() != null)
-                    return EvaluateArithmExpr(expr.arithmExpr());
-                if (expr.@string() != null)
-                    return expr.@string().GetText().Trim('"');
-            }
-            return null;
+    var expr = context.expression();
+           if (expr.arithmExpr() != null)
+      return EvaluateArithmExpr(expr.arithmExpr());
+    if (expr.@string() != null)
+        return expr.@string().GetText().Trim('"');
+     }
+    return null;
         }
 
         /// <summary>
-        /// Visit function call (including built-in functions).
-        /// </summary>
-        public object? VisitFunctionCall(CompilerParser.FunctionCallContext context)
+    /// Visit function call (including built-in functions and user-defined functions).
+      /// </summary>
+  public object? VisitFunctionCall(CompilerParser.FunctionCallContext context)
         {
-            var funcName = context.BUILTIN_FUNC()?.GetText() ?? context.ID()?.GetText();
-            var args = context.expression();
+       var funcName = context.BUILTIN_FUNC()?.GetText() ?? context.ID()?.GetText();
+       var args = context.expression();
 
-            return funcName switch
+            // Check for built-in functions first
+     switch (funcName)
             {
-                "sqrt" => Math.Sqrt(EvaluateExpression(args[0])),
-                "log" => Math.Log(EvaluateExpression(args[0])),
-                "sin" => Math.Sin(EvaluateExpression(args[0])),
-                "cos" => Math.Cos(EvaluateExpression(args[0])),
-                _ => throw new InvalidOperationException($"Unknown function: {funcName}")
-            };
+                case "sqrt":
+          return Math.Sqrt(EvaluateExpression(args[0]));
+    case "log":
+        return Math.Log(EvaluateExpression(args[0]));
+  case "sin":
+  return Math.Sin(EvaluateExpression(args[0]));
+      case "cos":
+    return Math.Cos(EvaluateExpression(args[0]));
+            }
+
+     // Check for user-defined functions
+   if (_functions.TryGetValue(funcName, out var funcDef))
+    {
+                return CallUserFunction(funcDef, args);
+       }
+
+            throw new InvalidOperationException($"Unknown function: {funcName}");
+        }
+
+        /// <summary>
+   /// Call a user-defined function with the given arguments.
+   /// </summary>
+        private object? CallUserFunction(FunctionDefinition funcDef, CompilerParser.ExpressionContext[] args)
+        {
+    // Save current scope
+        var previousScope = _currentScope;
+            _currentScope = funcDef.Name;
+
+  // Save current variable values that might be shadowed
+            var savedVariables = new Dictionary<string, Variable>();
+
+      // Bind parameters to arguments
+      for (int i = 0; i < funcDef.Parameters.Count && i < args.Length; i++)
+ {
+    var (paramType, paramName) = funcDef.Parameters[i];
+ var argValue = EvaluateExpression(args[i]);
+
+                // Save existing variable if it exists
+     if (_variables.TryGetValue(paramName, out var existingVar))
+    {
+         savedVariables[paramName] = existingVar;
+  }
+
+      _variables[paramName] = new Variable(paramType, argValue, _currentScope);
+         }
+
+        // Execute function body
+   object? result = null;
+  foreach (var stmt in funcDef.Context.statement())
+          {
+       result = VisitStatement(stmt);
+    }
+
+     // Restore shadowed variables
+          foreach (var kvp in savedVariables)
+     {
+         _variables[kvp.Key] = kvp.Value;
+       }
+
+            // Remove function-local parameters that weren't shadowing
+      foreach (var (_, paramName) in funcDef.Parameters)
+  {
+           if (!savedVariables.ContainsKey(paramName))
+     {
+       _variables.Remove(paramName);
+        }
+     }
+
+   // Restore scope
+     _currentScope = previousScope;
+
+     return result;
         }
 
         private double EvaluateExpression(CompilerParser.ExpressionContext context)
         {
-            if (context.arithmExpr() != null)
+          if (context.arithmExpr() != null)
                 return EvaluateArithmExpr(context.arithmExpr());
-            return 0;
+    return 0;
         }
 
         /// <summary>
         /// Evaluate a logical expression.
         /// </summary>
         private bool EvaluateLogicalExpr(CompilerParser.LogicalExprContext context)
-        {
+     {
             // singleExprs is a single context, not an array
             var firstExpr = context.singleLogicalExpr();
             var binaryOps = context.BINARY_LOGICAL_OP();
-            var logicalExprs = context.logicalExpr();
+    var logicalExprs = context.logicalExpr();
 
-            bool result = EvaluateSingleLogicalExpr(firstExpr);
+          bool result = EvaluateSingleLogicalExpr(firstExpr);
 
-            // If there are binary logical operators, process them with the right-hand logical expressions
+ // If there are binary logical operators, process them with the right-hand logical expressions
             for (int i = 0; i < binaryOps.Length; i++)
-            {
-                var op = binaryOps[i].GetText();
-                // logicalExprs[i] is the right-hand side for each binary op (0-indexed)
-                if (i < logicalExprs.Length)
-                {
-                    var right = EvaluateLogicalExpr(logicalExprs[i]);
+          {
+       var op = binaryOps[i].GetText();
+      // logicalExprs[i] is the right-hand side for each binary op (0-indexed)
+        if (i < logicalExprs.Length)
+  {
+       var right = EvaluateLogicalExpr(logicalExprs[i]);
 
-                    result = op switch
-                    {
-                        "&&" => result && right,
-                        "||" => result || right,
-                        _ => throw new InvalidOperationException($"Unknown logical operator: {op}")
-                    };
-                }
-            }
+             result = op switch
+     {
+   "&&" => result && right,
+    "||" => result || right,
+              _ => throw new InvalidOperationException($"Unknown logical operator: {op}")
+         };
+        }
+      }
 
-            return result;
+      return result;
         }
 
-        private bool EvaluateSingleLogicalExpr(CompilerParser.SingleLogicalExprContext context)
-        {
+    private bool EvaluateSingleLogicalExpr(CompilerParser.SingleLogicalExprContext context)
+     {
             // Handle TRUE/FALSE/NULL
             if (context.TRUE() != null) return true;
-            if (context.FALSE() != null) return false;
-            if (context.NULL() != null) return false;
+        if (context.FALSE() != null) return false;
+   if (context.NULL() != null) return false;
 
-            // Handle unary NOT
-            if (context.UNARY_LOGICAL_OP() != null)
-                return !EvaluateSingleLogicalExpr(context.singleLogicalExpr());
+ // Handle unary NOT
+          if (context.UNARY_LOGICAL_OP() != null)
+  return !EvaluateSingleLogicalExpr(context.singleLogicalExpr());
 
-            // Handle parenthesized expression
+       // Handle parenthesized expression
             if (context.logicalExpr() != null)
-                return EvaluateLogicalExpr(context.logicalExpr());
+        return EvaluateLogicalExpr(context.logicalExpr());
 
-            // Handle comparison: arithmExpr comparator arithmExpr
-            var arithmExprs = context.arithmExpr();
-            if (arithmExprs != null && arithmExprs.Length >= 2)
-            {
-                var left = EvaluateArithmExpr(arithmExprs[0]);
-                var right = EvaluateArithmExpr(arithmExprs[1]);
-                var comp = context.comparators().GetText();
+     // Handle comparison: arithmExpr comparator arithmExpr
+          var arithmExprs = context.arithmExpr();
+  if (arithmExprs != null && arithmExprs.Length >= 2)
+   {
+       var left = EvaluateArithmExpr(arithmExprs[0]);
+   var right = EvaluateArithmExpr(arithmExprs[1]);
+      var comp = context.comparators().GetText();
 
-                return comp switch
+          return comp switch
                 {
-                    "<" => left < right,
-                    "<=" => left <= right,
-                    ">" => left > right,
-                    ">=" => left >= right,
-                    "==" => Math.Abs(left - right) < double.Epsilon,
-                    "!=" => Math.Abs(left - right) >= double.Epsilon,
-                    _ => throw new InvalidOperationException($"Unknown comparator: {comp}")
-                };
-            }
+         "<" => left < right,
+                "<=" => left <= right,
+         ">" => left > right,
+         ">=" => left >= right,
+  "==" => Math.Abs(left - right) < double.Epsilon,
+        "!=" => Math.Abs(left - right) >= double.Epsilon,
+     _ => throw new InvalidOperationException($"Unknown comparator: {comp}")
+       };
+       }
 
-            // Handle single arithmetic expression (truthy check)
-            if (arithmExprs != null && arithmExprs.Length == 1)
-                return EvaluateArithmExpr(arithmExprs[0]) != 0;
+    // Handle single arithmetic expression (truthy check)
+if (arithmExprs != null && arithmExprs.Length == 1)
+   return EvaluateArithmExpr(arithmExprs[0]) != 0;
 
             return false;
-        }
+     }
 
         /// <summary>
         /// Evaluate an arithmetic expression and return its numeric value.
         /// </summary>
         private double EvaluateArithmExpr(CompilerParser.ArithmExprContext context)
         {
-            return context switch
+      return context switch
             {
-                CompilerParser.AddSubExprContext addSub => EvaluateAddSub(addSub),
+        CompilerParser.AddSubExprContext addSub => EvaluateAddSub(addSub),
                 CompilerParser.MulDivExprContext mulDiv => EvaluateMulDiv(mulDiv),
                 CompilerParser.AtomExprContext atomExpr => EvaluateAtom(atomExpr.atom()),
-                _ => throw new InvalidOperationException($"Unknown expression type: {context.GetType().Name}")
+       _ => throw new InvalidOperationException($"Unknown expression type: {context.GetType().Name}")
             };
         }
 
         private double EvaluateAddSub(CompilerParser.AddSubExprContext context)
-        {
-            var left = EvaluateArithmExpr(context.arithmExpr(0));
+      {
+         var left = EvaluateArithmExpr(context.arithmExpr(0));
             var right = EvaluateArithmExpr(context.arithmExpr(1));
             var op = context.op.Text;
 
-            return op switch
-            {
-                "+" => left + right,
-                "-" => left - right,
+        return op switch
+      {
+      "+" => left + right,
+            "-" => left - right,
                 _ => throw new InvalidOperationException($"Unknown operator: {op}")
-            };
+  };
         }
 
         private double EvaluateMulDiv(CompilerParser.MulDivExprContext context)
         {
-            var left = EvaluateArithmExpr(context.arithmExpr(0));
-            var right = EvaluateArithmExpr(context.arithmExpr(1));
+     var left = EvaluateArithmExpr(context.arithmExpr(0));
+     var right = EvaluateArithmExpr(context.arithmExpr(1));
             var op = context.op.Text;
 
-            return op switch
-            {
-                "*" => left * right,
-                "/" => right != 0 ? left / right : throw new DivideByZeroException(),
-                "%" => left % right,
-                _ => throw new InvalidOperationException($"Unknown operator: {op}")
-            };
+        return op switch
+       {
+         "*" => left * right,
+           "/" => right != 0 ? left / right : throw new DivideByZeroException(),
+      "%" => left % right,
+      _ => throw new InvalidOperationException($"Unknown operator: {op}")
+         };
         }
 
-        private double EvaluateAtom(CompilerParser.AtomContext context)
-        {
-            return context switch
-            {
-                CompilerParser.NumberAtomContext numCtx => double.Parse(numCtx.number().GetText()),
-                CompilerParser.IdAtomContext idCtx => GetVariableAsDouble(idCtx.ID().GetText()),
-                CompilerParser.ParenExprContext parenCtx => EvaluateArithmExpr(parenCtx.arithmExpr()),
-                CompilerParser.FuncCallAtomContext funcCtx => (double)(VisitFunctionCall(funcCtx.functionCall()) ?? 0.0),
-                _ => throw new InvalidOperationException($"Unknown atom type: {context.GetType().Name}")
-            };
+      private double EvaluateAtom(CompilerParser.AtomContext context)
+  {
+      return context switch
+       {
+         CompilerParser.NumberAtomContext numCtx => double.Parse(numCtx.number().GetText()),
+             CompilerParser.IdAtomContext idCtx => GetVariableAsDouble(idCtx.ID().GetText()),
+   CompilerParser.ParenExprContext parenCtx => EvaluateArithmExpr(parenCtx.arithmExpr()),
+          CompilerParser.FuncCallAtomContext funcCtx => (double)(VisitFunctionCall(funcCtx.functionCall()) ?? 0.0),
+            _ => throw new InvalidOperationException($"Unknown atom type: {context.GetType().Name}")
+       };
         }
 
         private double GetVariableAsDouble(string name)
         {
-            if (_variables.TryGetValue(name, out var variable))
+       if (_variables.TryGetValue(name, out var variable))
             {
-                return variable.Value switch
-                {
-                    double d => d,
-                    int i => i,
-                    float f => f,
-                    string s => double.TryParse(s, out var parsed) ? parsed : 0,
-                    _ => 0
-                };
-            }
+   return variable.Value switch
+     {
+  double d => d,
+  int i => i,
+          float f => f,
+    string s => double.TryParse(s, out var parsed) ? parsed : 0,
+_ => 0
+      };
+  }
             throw new InvalidOperationException($"Undefined variable: {name}");
         }
 
         // Public accessors
         public bool TryGetVariable(string name, out Variable? value) => _variables.TryGetValue(name, out value);
         public void SetVariable(string name, Variable value) => _variables[name] = value;
-        public IReadOnlyDictionary<string, Variable> Variables => _variables;
+   public IReadOnlyDictionary<string, Variable> Variables => _variables;
+        public IReadOnlyDictionary<string, FunctionDefinition> Functions => _functions;
     }
 }

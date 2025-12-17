@@ -8,7 +8,15 @@ options {
 	language = CSharp;
 }
 
-program: (varDeclaration SEMICOL)* mainFunction EOF;
+program: (globalDeclaration)* mainFunction EOF;
+
+globalDeclaration: varDeclaration SEMICOL | functionDeclaration;
+
+functionDeclaration:
+	varType ID LPAREN parameterList? RPAREN LBRACE (statement)* RBRACE;
+
+parameterList: parameter (COMMA parameter)*;
+parameter: varType ID;
 
 varType: INT_TYPE | DOUBLE_TYPE | FLOAT_TYPE | STRING_TYPE;
 numericType: INT_TYPE | DOUBLE_TYPE | FLOAT_TYPE;

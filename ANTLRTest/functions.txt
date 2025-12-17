@@ -1,0 +1,70 @@
+================================================================================
+FUNCTION ANALYSIS REPORT
+================================================================================
+
+------------------------------------------------------------
+FUNCTION: f
+------------------------------------------------------------
+  Function Type: Iterative, Non-Main
+  Return Type: int
+  Location: Lines 4 - 6
+  Parameters (0):
+    (none)
+  Local Variables (0):
+(none)
+  Control Structures (0):
+    (none)
+
+------------------------------------------------------------
+FUNCTION: add
+------------------------------------------------------------
+  Function Type: Iterative, Non-Main
+  Return Type: int
+  Location: Lines 8 - 10
+  Parameters (2):
+    - int a
+    - int b
+  Local Variables (0):
+(none)
+  Control Structures (0):
+    (none)
+
+------------------------------------------------------------
+FUNCTION: main
+------------------------------------------------------------
+  Function Type: Iterative, Main
+  Return Type: int
+  Location: Lines 12 - 64
+  Parameters (0):
+    (none)
+  Local Variables (16):
+    - int i = 0 (line 14)
+    - int a = 5 (line 14)
+    - int b = 10 (line 19)
+    - int a = 3+2 (line 25)
+    - int b = 10-a (line 26)
+    - int m = 5 (line 27)
+    - int n = 8 (line 27)
+    - int k = 6 (line 27)
+    - string c = "Hello World" (line 28)
+    - string aibsu = "This is a test string with special characters: !@#$%^&*()_+" (line 41)
+    - int sum = 0 (line 44)
+    - int i = 1 (line 45)
+    - int abc = sin(sum)*sin(sum)+cos(sum)*cos(sum) (line 49)
+    - int num1 = 524130423 (line 51)
+    - int num2 = 764510 (line 51)
+    - int addTest = add(2*l,h) (line 60)
+  Control Structures (7):
+    - <for, 14>
+    - <while, 21>
+    - <if...else, 30>
+    - <if, 37>
+    - <for, 45>
+    - <while, 52>
+    - <if...else, 53>
+
+================================================================================
+Total Functions: 3
+Main Functions: 1
+Recursive Functions: 0
+================================================================================

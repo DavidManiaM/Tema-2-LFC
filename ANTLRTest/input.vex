@@ -1,6 +1,14 @@
 int l = 5 + 7 * (3 - 1);
 int h = l % 3;
 
+int f() {
+	return l + h;
+}
+
+int add(int a, int b) {
+	return a + b;
+}
+
 int main() {
 
 	for (int i = 0, a = 5; i <= 10 && a < 20; i++) {
@@ -48,6 +56,8 @@ int main() {
 			num2 = num2 - num1;
 		}
 	}
+
+	int addTest = add(2*l, h);
 
 	return 0;
 

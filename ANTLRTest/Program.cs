@@ -30,6 +30,13 @@ namespace ANTLRTest
             // 4. Create the token stream
             var commonTokenStream = new CommonTokenStream(lexer);
 
+            // Extract and save the tokens
+            SaveTokensToFile(commonTokenStream, "../../../tokens.txt");
+
+            // Reset the stream to be used by the parser
+            commonTokenStream.Seek(0);
+
+
             // 5. Create the parser
             var parser = new CompilerParser(commonTokenStream);
 
@@ -53,6 +60,27 @@ namespace ANTLRTest
             {
                 Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
             }
+        }
+
+        /// <summary>
+        /// Extracts all tokens from the stream and saves them to a file.
+        /// </summary>
+        private static void SaveTokensToFile(CommonTokenStream tokens, string outputPath)
+        {
+            // The Fill() method is called to load all tokens from the lexer
+            tokens.Fill();
+
+            var tokenTuples = tokens.GetTokens().Select(t =>
+            {
+                // For EOF, the symbolic name can be null, so we handle that case.
+                string tokenName = CompilerLexer.DefaultVocabulary.GetSymbolicName(t.Type) ?? "EOF";
+                string lexem = t.Text.Replace("\r", "\\r").Replace("\n", "\\n"); // Escape newlines
+                int lineIndex = t.Line;
+                return $"<{tokenName}, {lexem}, {lineIndex}>";
+            });
+
+            File.WriteAllLines(outputPath, tokenTuples);
+            Console.WriteLine($"Tokens saved to '{outputPath}'");
         }
 
         /// <summary>

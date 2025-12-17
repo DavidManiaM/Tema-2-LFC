@@ -7,18 +7,6 @@
       "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\evalvisitor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\errorreporter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\errorreporter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\functionanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\functionanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\variable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\variable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -31,6 +19,10 @@
       "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\returnvalue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\input.vex||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\input.vex||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
@@ -41,6 +33,18 @@
     {
       "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\functions.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\functions.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\errors.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\errors.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\errorreporter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\errorreporter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\functionanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|solutionrelative:antlrtest\\functionanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EF5A0246-5672-45CB-B0FB-A76E59F66A9A}|ANTLRTest\\ANTLRTest.csproj|c:\\users\\alex\\desktop\\tema-2-lfc\\antlrtest\\compiler.g4||{8B382828-6202-11D1-8870-0000F87579D2}",
@@ -66,20 +70,20 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ErrorReporter.cs",
-              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ErrorReporter.cs",
-              "RelativeDocumentMoniker": "ANTLRTest\\ErrorReporter.cs",
-              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ErrorReporter.cs",
-              "RelativeToolTip": "ANTLRTest\\ErrorReporter.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T14:22:34.255Z",
+              "DocumentIndex": 8,
+              "Title": "errors.txt",
+              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\errors.txt",
+              "RelativeDocumentMoniker": "ANTLRTest\\errors.txt",
+              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\errors.txt",
+              "RelativeToolTip": "ANTLRTest\\errors.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2025-12-17T14:53:40.715Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 2,
               "Title": "tokens.txt",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\tokens.txt",
               "RelativeDocumentMoniker": "ANTLRTest\\tokens.txt",
@@ -92,7 +96,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
               "Title": "ReturnValue.cs",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ReturnValue.cs",
               "RelativeDocumentMoniker": "ANTLRTest\\ReturnValue.cs",
@@ -105,7 +109,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\Program.cs",
               "RelativeDocumentMoniker": "ANTLRTest\\Program.cs",
@@ -118,7 +122,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
               "Title": "input.vex",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\input.vex",
               "RelativeDocumentMoniker": "ANTLRTest\\input.vex",
@@ -131,7 +135,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 6,
               "Title": "global_variables.txt",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\global_variables.txt",
               "RelativeDocumentMoniker": "ANTLRTest\\global_variables.txt",
@@ -144,46 +148,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 7,
               "Title": "functions.txt",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\functions.txt",
               "RelativeDocumentMoniker": "ANTLRTest\\functions.txt",
               "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\functions.txt",
               "RelativeToolTip": "ANTLRTest\\functions.txt",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
               "WhenOpened": "2025-12-17T14:11:21.761Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "FunctionAnalyzer.cs",
-              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\FunctionAnalyzer.cs",
-              "RelativeDocumentMoniker": "ANTLRTest\\FunctionAnalyzer.cs",
-              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\FunctionAnalyzer.cs",
-              "RelativeToolTip": "ANTLRTest\\FunctionAnalyzer.cs",
-              "ViewState": "AgIAAEYBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T14:11:14.182Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "EvalVisitor.cs",
-              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\EvalVisitor.cs",
-              "RelativeDocumentMoniker": "ANTLRTest\\EvalVisitor.cs",
-              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\EvalVisitor.cs",
-              "RelativeToolTip": "ANTLRTest\\EvalVisitor.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-17T14:11:11.566Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "Variable.cs",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\Variable.cs",
               "RelativeDocumentMoniker": "ANTLRTest\\Variable.cs",
@@ -196,7 +174,44 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EvalVisitor.cs",
+              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\EvalVisitor.cs",
+              "RelativeDocumentMoniker": "ANTLRTest\\EvalVisitor.cs",
+              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\EvalVisitor.cs",
+              "RelativeToolTip": "ANTLRTest\\EvalVisitor.cs",
+              "ViewState": "AgIAAPEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T14:11:11.566Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 10,
+              "Title": "FunctionAnalyzer.cs",
+              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\FunctionAnalyzer.cs",
+              "RelativeDocumentMoniker": "ANTLRTest\\FunctionAnalyzer.cs",
+              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\FunctionAnalyzer.cs",
+              "RelativeToolTip": "ANTLRTest\\FunctionAnalyzer.cs",
+              "ViewState": "AgIAAEYBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T14:11:14.182Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ErrorReporter.cs",
+              "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ErrorReporter.cs",
+              "RelativeDocumentMoniker": "ANTLRTest\\ErrorReporter.cs",
+              "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ErrorReporter.cs",
+              "RelativeToolTip": "ANTLRTest\\ErrorReporter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T14:22:34.255Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "Compiler.g4",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\Compiler.g4",
               "RelativeDocumentMoniker": "ANTLRTest\\Compiler.g4",
@@ -204,12 +219,11 @@
               "RelativeToolTip": "ANTLRTest\\Compiler.g4",
               "ViewState": "AgIAAJ8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-12-17T14:11:02.941Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T14:11:02.941Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\.gitignore",
               "RelativeDocumentMoniker": "ANTLRTest\\.gitignore",
@@ -217,21 +231,19 @@
               "RelativeToolTip": "ANTLRTest\\.gitignore",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-12-17T14:11:00.707Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T14:11:00.707Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "ANTLRTest",
+              "DocumentIndex": 13,
+              "Title": "ANTLRTest.csproj",
               "DocumentMoniker": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ANTLRTest.csproj",
               "RelativeDocumentMoniker": "ANTLRTest\\ANTLRTest.csproj",
               "ToolTip": "C:\\Users\\ALEX\\Desktop\\Tema-2-LFC\\ANTLRTest\\ANTLRTest.csproj",
               "RelativeToolTip": "ANTLRTest\\ANTLRTest.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-12-17T14:10:37.515Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-17T14:10:37.515Z"
             }
           ]
         }

@@ -784,61 +784,55 @@ _ => 0
         // Type inference for arithmetic expressions
         private string InferArithmExprType(CompilerParser.ArithmExprContext context)
         {
-            if (context is CompilerParser.AddSubExprContext addSub)
+            return context switch
             {
-                var a = InferArithmExprType(addSub.arithmExpr(0));
-                var b = InferArithmExprType(addSub.arithmExpr(1));
-                return (a == "double" || b == "double") ? "double" : "int";
-            }
-            else if (context is CompilerParser.MulDivExprContext mulDiv)
-            {
-                var a = InferArithmExprType(mulDiv.arithmExpr(0));
-                var b = InferArithmExprType(mulDiv.arithmExpr(1));
-                return (a == "double" || b == "double") ? "double" : "int";
-            }
-            else if (context is CompilerParser.AtomExprContext atomExpr)
-            {
-                return InferAtomType(atomExpr.atom());
-            }
-
-            return "unknown";
+                CompilerParser.AddSubExprContext addSub =>
+                    {
+                        var a = InferArithmExprType(addSub.arithmExpr(0));
+                        var b = InferArithmExprType(addSub.arithmExpr(1));
+                        return (a == "double" || b == "double") ? "double" : "int";
+                    },
+                CompilerParser.MulDivExprContext mulDiv =>
+                    {
+                        var a = InferArithmExprType(mulDiv.arithmExpr(0));
+                        var b = InferArithmExprType(mulDiv.arithmExpr(1));
+                        return (a == "double" || b == "double") ? "double" : "int";
+                    },
+                CompilerParser.AtomExprContext atomExpr => InferAtomType(atomExpr.atom()),
+                _ => "unknown"
+            };
         }
 
         private string InferAtomType(CompilerParser.AtomContext context)
         {
-            if (context is CompilerParser.NumberAtomContext numCtx)
+            return context switch
             {
-                return numCtx.number().GetText().Contains('.') ? "double" : "int";
-            }
-
-            if (context is CompilerParser.IdAtomContext idCtx)
-            {
-                var name = idCtx.ID().GetText();
-                if (_variables.TryGetValue(name, out var v)) return v.Type;
-                _semanticErrors.Add($"Undefined variable used in expression: {name} at line {idCtx.Start.Line}");
-                return "unknown";
-            }
-
-            if (context is CompilerParser.ParenExprContext paren)
-            {
-                return InferArithmExprType(paren.arithmExpr());
-            }
-
-            if (context is CompilerParser.FuncCallAtomContext funcCtx)
-            {
-                var fname = funcCtx.functionCall().BUILTIN_FUNC()?.GetText() ?? funcCtx.functionCall().ID()?.GetText();
-                if (fname == null) return "unknown";
-                if (_functions.TryGetValue(fname, out var list))
-                {
-                    if (list.Count == 1) return list[0].ReturnType;
-                    return "unknown";
-                }
-                if (new[] { "sqrt", "log", "sin", "cos" }.Contains(fname)) return "double";
-                _semanticErrors.Add($"Unknown function in expression: {fname} at line {funcCtx.Start.Line}");
-                return "unknown";
-            }
-
-            return "unknown";
+                CompilerParser.NumberAtomContext numCtx => numCtx.number().GetText().Contains('.') ? "double" : "int",
+                CompilerParser.IdAtomContext idCtx =>
+                    {
+                        var name = idCtx.ID().GetText();
+                        if (_variables.TryGetValue(name, out var v)) return v.Type;
+                        _semanticErrors.Add($"Undefined variable used in expression: {name} at line {idCtx.Start.Line}");
+                        return "unknown";
+                    },
+                CompilerParser.ParenExprContext paren => InferArithmExprType(paren.arithmExpr()),
+                CompilerParser.FuncCallAtomContext funcCtx =>
+                    {
+                        var fname = funcCtx.functionCall().BUILTIN_FUNC()?.GetText() ?? funcCtx.functionCall().ID()?.GetText();
+                        if (fname == null) return "unknown";
+                        if (_functions.TryGetValue(fname, out var list))
+                        {
+                            // if single overload, return its type; otherwise unknown
+                            if (list.Count == 1) return list[0].ReturnType;
+                            return "unknown";
+                        }
+                        // builtin functions return double
+                        if (new[] { "sqrt", "log", "sin", "cos" }.Contains(fname)) return "double";
+                        _semanticErrors.Add($"Unknown function in expression: {fname} at line {funcCtx.Start.Line}");
+                        return "unknown";
+                    },
+                _ => "unknown"
+            };
         }
 
         private bool AreTypesCompatible(string declared, string actual)

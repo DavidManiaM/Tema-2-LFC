@@ -1,6 +1,7 @@
 ﻿using Antlr4.Runtime;
 using System;
 using System.IO;
+using System.Text;
 
 namespace ANTLRTest
 {
@@ -40,7 +41,11 @@ namespace ANTLRTest
             visitor.Evaluate(context);
 
             Console.WriteLine("Parsing completed.");
-            Console.WriteLine(context.ToStringTree(parser)); // Print the LISP-style tree
+            // Console.WriteLine(context.ToStringTree(parser)); // Print the LISP-style tree
+
+            Console.WriteLine("\nParse Tree:");
+            Console.WriteLine(PrettyPrintTree(context.ToStringTree(parser)));
+
 
             // 8. Print evaluated variables
             Console.WriteLine("\nVariables:");
@@ -48,6 +53,51 @@ namespace ANTLRTest
             {
                 Console.WriteLine($"  {kvp.Key} = {kvp.Value}");
             }
+        }
+
+        /// <summary>
+        /// Formats a LISP-style tree string with proper indentation.
+        /// </summary>
+        private static string PrettyPrintTree(string tree)
+        {
+            var sb = new StringBuilder();
+            int indentLevel = 0;
+            const string indent = "  ";
+
+            for (int i = 0; i < tree.Length; i++)
+            {
+                char c = tree[i];
+
+                if (c == '(')
+                {
+                    if (i > 0 && tree[i - 1] != '(' && tree[i - 1] != ' ')
+                    {
+                        sb.AppendLine();
+                        sb.Append(string.Concat(Enumerable.Repeat(indent, indentLevel)));
+                    }
+                    sb.Append(c);
+                    indentLevel++;
+                    sb.AppendLine();
+                    sb.Append(string.Concat(Enumerable.Repeat(indent, indentLevel)));
+                }
+                else if (c == ')')
+                {
+                    indentLevel--;
+                    sb.AppendLine();
+                    sb.Append(string.Concat(Enumerable.Repeat(indent, indentLevel)));
+                    sb.Append(c);
+                }
+                else if (c == ' ' && i + 1 < tree.Length && tree[i + 1] == '(')
+                {
+                    // Skip space before opening paren
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }
